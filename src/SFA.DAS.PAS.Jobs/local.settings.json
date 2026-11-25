@@ -1,0 +1,22 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true;",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true;",
+    "ConfigNames": "SFA.DAS.PAS.Jobs,SFA.DAS.Provider.DfeSignIn",
+    "Version": "1.0",
+    "EnvironmentName": "LOCAL",
+    "SynchroniseProvidersFunctionSchedule": "0 0 0 * * *",
+    "SynchroniseUsersFunctionSchedule": "* */15 * * * *",
+    "AzureWebJobs.SynchroniseProvidersFunction.Disabled": "true",
+    "AzureWebJobs.SynchroniseUsersFunction.Disabled": "false"
+  }
+}
