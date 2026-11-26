@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="SFA.DAS.PAS.Jobs.UnitTests/SFA.DAS.PAS.Jobs.UnitTests.csproj" Id="327b355d-ac62-474a-9268-13740e3a1584" />
+  </Folder>
+  <Project Path="SFA.DAS.PAS.Data/SFA.DAS.PAS.Data.csproj" />
+  <Project Path="SFA.DAS.PAS.Jobs/SFA.DAS.PAS.Jobs.csproj" />
+</Solution>
