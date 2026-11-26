@@ -20,15 +20,13 @@ public class ImportProviderService(
         logger.LogInformation("Import Providers Service - Started");
 
         ApiModels.GetAllOrganisationsResponse providersResponse = await roatpApiClient.GetProviders();
-        var providers = providersResponse?.Organisations;
-
-        if (providers.Count == 0)
+        if (providersResponse == null || providersResponse.Organisations.Count == 0)
         {
             logger.LogInformation("ImportProvidersJob - No providers returned");
             return;
         }
 
-        foreach (var batch in providers.Chunk(BatchSize))
+        foreach (var batch in providersResponse.Organisations.Chunk(BatchSize))
         {
             var mappedProviders = batch
                 .Select(provider => new Provider

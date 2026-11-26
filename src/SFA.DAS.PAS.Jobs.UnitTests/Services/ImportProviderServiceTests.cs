@@ -13,7 +13,7 @@ namespace SFA.DAS.PAS.Jobs.UnitTests.Services;
 public class ImportProviderServiceTests
 {
     [Test, MoqAutoData]
-    public async Task WhenImportProviders_ThenMapsProviders_AndPassesCancellationToken(
+    public async Task WhenImportingProviders_ThenMapsProviders_AndPassesCancellationToken(
         [Frozen] Mock<IRoatpApiClient> roatpApiClient,
         [Frozen] Mock<IProviderRepository> providerRepository,
         ImportProviderService sut,
@@ -43,15 +43,18 @@ public class ImportProviderServiceTests
 
         roatpApiClient.Verify(client => client.GetProviders(), Times.Once);
         Assert.That(importedProviders, Has.Length.EqualTo(2));
-        Assert.That(importedProviders![0].Ukprn, Is.EqualTo(10000001));
-        Assert.That(importedProviders[0].Name, Is.EqualTo("Provider One"));
-        Assert.That(importedProviders[1].Ukprn, Is.EqualTo(10000002));
-        Assert.That(importedProviders[1].Name, Is.EqualTo("Provider Two"));
-        Assert.That(importedCancellationToken, Is.EqualTo(cancellationToken));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(importedProviders![0].Ukprn, Is.EqualTo(10000001));
+            Assert.That(importedProviders[0].Name, Is.EqualTo("Provider One"));
+            Assert.That(importedProviders[1].Ukprn, Is.EqualTo(10000002));
+            Assert.That(importedProviders[1].Name, Is.EqualTo("Provider Two"));
+            Assert.That(importedCancellationToken, Is.EqualTo(cancellationToken));
+        }
     }
 
     [Test, MoqAutoData]
-    public async Task WhenImportProviders_ThenDoesNotImportWhenApiReturnsNoProviders(
+    public async Task WhenImportingProviders_AndApiReturnsNoProviders_ThenExitsFunction(
         [Frozen] Mock<IRoatpApiClient> roatpApiClient,
         [Frozen] Mock<IProviderRepository> providerRepository,
         ImportProviderService sut)
@@ -63,13 +66,29 @@ public class ImportProviderServiceTests
         await sut.ImportProviders(CancellationToken.None);
 
         roatpApiClient.Verify(client => client.GetProviders(), Times.Once);
-        providerRepository.Verify(
-            repository => repository.ImportProviders(It.IsAny<Provider[]>(), It.IsAny<CancellationToken>()),
+        providerRepository.Verify(repository => repository.ImportProviders(It.IsAny<Provider[]>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Test, MoqAutoData]
-    public async Task WhenImportProviders_ThenImportsProvidersInBatchesOfAtMostOneThousand(
+    public async Task WhenImportingProviders_AndApiReturnsNullResponse_ThenExitsFunction(
+        [Frozen] Mock<IRoatpApiClient> roatpApiClient,
+        [Frozen] Mock<IProviderRepository> providerRepository,
+        ImportProviderService sut)
+    {
+        roatpApiClient
+            .Setup(client => client.GetProviders())
+            .ReturnsAsync(() => null);
+
+        await sut.ImportProviders(CancellationToken.None);
+
+        roatpApiClient.Verify(client => client.GetProviders(), Times.Once);
+        providerRepository.Verify(repository => repository.ImportProviders(It.IsAny<Provider[]>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenImportingProviders_ThenImportsProvidersInBatchesOfAtMostOneThousand(
         [Frozen] Mock<IRoatpApiClient> roatpApiClient,
         [Frozen] Mock<IProviderRepository> providerRepository,
         ImportProviderService sut,
@@ -90,11 +109,14 @@ public class ImportProviderServiceTests
 
         await sut.ImportProviders(cancellationToken);
 
-        Assert.That(importedBatches, Has.Count.EqualTo(2));
-        Assert.That(importedBatches[0], Has.Length.EqualTo(1000));
-        Assert.That(importedBatches[1], Has.Length.EqualTo(1));
-        Assert.That(importedBatches[0][0].Ukprn, Is.EqualTo(1));
-        Assert.That(importedBatches[0][^1].Ukprn, Is.EqualTo(1000));
-        Assert.That(importedBatches[1][0].Ukprn, Is.EqualTo(1001));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(importedBatches, Has.Count.EqualTo(2));
+            Assert.That(importedBatches[0], Has.Length.EqualTo(1000));
+            Assert.That(importedBatches[1], Has.Length.EqualTo(1));
+            Assert.That(importedBatches[0][0].Ukprn, Is.EqualTo(1));
+            Assert.That(importedBatches[0][^1].Ukprn, Is.EqualTo(1000));
+            Assert.That(importedBatches[1][0].Ukprn, Is.EqualTo(1001));
+        }
     }
 }
