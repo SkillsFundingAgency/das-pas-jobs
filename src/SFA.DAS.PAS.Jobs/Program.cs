@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.PAS.Api.AppStart;
 using SFA.DAS.PAS.Data.Extensions;
 using SFA.DAS.PAS.Jobs.Extensions;
 
@@ -27,7 +26,6 @@ public static class Program
         builder.Services
             .AddApplicationInsightsTelemetryWorkerService()
             .ConfigureFunctionsApplicationInsights()
-            .AddOpenTelemetryRegistration(builder.Configuration)
             .AddApplicationRegistrations(builder.Configuration)
             .AddPasDataContext(builder.Configuration);
 
